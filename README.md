@@ -64,6 +64,10 @@ under `examples`, but they are reproduced here for your benefit:
   (print val))
 ```
 
+`edgerunner` exposes a standard library of Go functions, thanks to the power of
+[`gopher-lua-libs`](https://github.com/vadv/gopher-lua-libs). Please review the
+documentation of that package to understand what's available.
+
 ### Building it
 
 Clone the repo and run:

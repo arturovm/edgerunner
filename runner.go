@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sync"
 
+	lualibs "github.com/vadv/gopher-lua-libs"
 	lua "github.com/yuin/gopher-lua"
 )
 
@@ -42,6 +43,7 @@ func startWorkers(numWorkers int, wg *sync.WaitGroup, inbox <-chan lua.LValue, t
 
 func worker(inbox <-chan lua.LValue, taskModuleProto *lua.FunctionProto) {
 	state := lua.NewState()
+	lualibs.Preload(state)
 	for val := range inbox {
 		runFirstModuleFunction(state, taskModuleProto, val)
 	}
