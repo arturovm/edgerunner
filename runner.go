@@ -25,15 +25,15 @@ func runWith(generatorPath, taskPath string) error {
 
 	var wg sync.WaitGroup
 	messaging := make(chan lua.LValue)
-	startWorkers(cpus, &wg, messaging, taskModuleProto)
+	startWorkers(numWorkers, &wg, messaging, taskModuleProto)
 	generator(generatorSlice, messaging)
 	wg.Wait()
 
 	return err
 }
 
-func startWorkers(cpus int, wg *sync.WaitGroup, inbox <-chan lua.LValue, taskModuleProto *lua.FunctionProto) {
-	for range cpus {
+func startWorkers(numWorkers int, wg *sync.WaitGroup, inbox <-chan lua.LValue, taskModuleProto *lua.FunctionProto) {
+	for range numWorkers {
 		wg.Go(func() {
 			worker(inbox, taskModuleProto)
 		})
@@ -41,11 +41,11 @@ func startWorkers(cpus int, wg *sync.WaitGroup, inbox <-chan lua.LValue, taskMod
 }
 
 func worker(inbox <-chan lua.LValue, taskModuleProto *lua.FunctionProto) {
+	state := lua.NewState()
 	for val := range inbox {
-		state := lua.NewState()
 		runFirstModuleFunction(state, taskModuleProto, val)
-		state.Close()
 	}
+	state.Close()
 }
 
 func generator(generatorSlice *lua.LTable, outbox chan<- lua.LValue) {

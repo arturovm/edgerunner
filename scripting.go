@@ -42,15 +42,10 @@ func compileFennel(filePath string) (string, error) {
 	state := lua.NewState()
 	defer state.Close()
 
-	err := state.DoString(fennelSource)
+	err := loadFennelCompiler(state, fennelSource)
 	if err != nil {
-		return "", fmt.Errorf("load fennel: %w", err)
+		return "", fmt.Errorf("load fennel compiler: %w", err)
 	}
-	fennelModule := state.Get(-1)
-	state.Pop(1)
-	pkg := state.GetGlobal("package")
-	loaded := state.GetField(pkg, "loaded")
-	state.SetField(loaded, "fennel", fennelModule)
 
 	err = state.DoString(fmt.Sprintf(fennelTemplate, filePath))
 	if err != nil {
@@ -63,6 +58,22 @@ func compileFennel(filePath string) (string, error) {
 	}
 
 	return string(lv.(lua.LString)), nil
+}
+
+func loadFennelCompiler(state *lua.LState, fennelSource string) error {
+	err := state.DoString(fennelSource)
+	if err != nil {
+		return fmt.Errorf("do string: %w", err)
+	}
+
+	fennelModule := state.Get(-1)
+	state.Pop(state.GetTop())
+
+	pkg := state.GetGlobal("package")
+	loaded := state.GetField(pkg, "loaded")
+	state.SetField(loaded, "fennel", fennelModule)
+
+	return nil
 }
 
 func compileLua(sourceReader *bufio.Reader, filePath string) (*lua.FunctionProto, error) {
@@ -81,11 +92,7 @@ func compileLua(sourceReader *bufio.Reader, filePath string) (*lua.FunctionProto
 
 func runFirstModuleFunction(state *lua.LState, moduleProto *lua.FunctionProto, args ...lua.LValue) (lua.LValue, error) {
 	module := state.NewFunctionFromProto(moduleProto)
-
-	state.Push(module)
-	state.PCall(0, lua.MultRet, nil)
-	function := state.Get(-1)
-	state.Pop(state.GetTop())
+	function := evaluateModuleAndRetrieveValue(state, module)
 
 	state.Push(function)
 	for i := range len(args) {
@@ -96,6 +103,14 @@ func runFirstModuleFunction(state *lua.LState, moduleProto *lua.FunctionProto, a
 	state.Pop(state.GetTop())
 
 	return function, nil
+}
+
+func evaluateModuleAndRetrieveValue(state *lua.LState, module *lua.LFunction) lua.LValue {
+	state.Push(module)
+	state.PCall(0, lua.MultRet, nil)
+	function := state.Get(-1)
+	state.Pop(state.GetTop())
+	return function
 }
 
 func luaTableToSlice(table *lua.LTable) []lua.LValue {
