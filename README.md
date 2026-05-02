@@ -49,7 +49,7 @@ flag provided for this purpose.
 for both the _generator_ and the _task_ specs. Why? Because I love Functional
 Programming, I like LISPs, and because I can :)
 
-In this repo, you'll find some examples of a minimal _generator_ and _task_
+In this repository, you'll find some examples of a minimal _generator_ and _task_
 under `examples`, but they are reproduced here for your benefit:
 
 ```fennel
@@ -60,9 +60,15 @@ under `examples`, but they are reproduced here for your benefit:
 
 ```fennel
 ;; task.fnl
+(local crypto (require :crypto))
+
 (fn task [val]
-  (print val))
+  (print (crypto.md5 val)))
 ```
+
+The most important thing to remember here is that the `generator` and `task`
+functions _must_ be the last expressions in the spec files. This is due to the
+underlying mechanics of Fennel evaluation.
 
 `edgerunner` exposes a standard library of Go functions, thanks to the power of
 [`gopher-lua-libs`](https://github.com/vadv/gopher-lua-libs). Please review the
@@ -70,7 +76,7 @@ documentation of that package to understand what's available.
 
 ### Building it
 
-Clone the repo and run:
+Clone the repository and run:
 
 ```sh
 $ make build

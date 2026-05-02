@@ -1,2 +1,4 @@
+(local crypto (require :crypto))
+
 (fn task [val]
-  (print val))
+  (print (crypto.md5 val)))
