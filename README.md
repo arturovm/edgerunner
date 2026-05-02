@@ -5,7 +5,7 @@ A tool for running concurrent workloads.
 ## Why
 
 I got tired of writing very similar tools for specific use cases while solving
-challenges on _picoCTF_, so I decided to abstract the pattern and I wrote this.
+challenges on _picoCTF_, so I decided to abstract the pattern, and I wrote this.
 
 ## How
 
@@ -28,7 +28,7 @@ _task_:
    be distributed to the concurrent workers executing the _task_.
 2. The _task_ is a function that takes as its single input each value produced
    by the _generator_ and then does something useful with it (e.g. using the
-   values as URIs to enumerate paths on a server, etc)
+   values as URIs to enumerate paths on a server, etc).
 
 #### Command usage
 
