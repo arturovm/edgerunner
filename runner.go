@@ -35,6 +35,22 @@ func runWith(generatorPath, taskPath string, numWorkers int) error {
 	return err
 }
 
+func gatherGeneratorSlice(generator *lua.FunctionProto) (*lua.LTable, error) {
+	state := lua.NewState()
+	defer state.Close()
+
+	lualibs.Preload(state)
+	generatorValue, err := runModuleValue(state, generator)
+	if err != nil {
+		return nil, fmt.Errorf("run: %w", err)
+	}
+	if generatorValue.Type() != lua.LTTable {
+		return nil, fmt.Errorf("expected a table of values but got %s", generatorValue.Type().String())
+	}
+
+	return generatorValue.(*lua.LTable), nil
+}
+
 func startWorkers(numWorkers int, wg *sync.WaitGroup, inbox <-chan lua.LValue, taskModuleProto *lua.FunctionProto) {
 	for range numWorkers {
 		wg.Go(func() {
@@ -68,20 +84,4 @@ func maybeSleep(sleep int) {
 		return
 	}
 	time.Sleep(time.Duration(sleep) * time.Second)
-}
-
-func gatherGeneratorSlice(generator *lua.FunctionProto) (*lua.LTable, error) {
-	state := lua.NewState()
-	defer state.Close()
-
-	lualibs.Preload(state)
-	generatorValue, err := runModuleValue(state, generator)
-	if err != nil {
-		return nil, fmt.Errorf("run: %w", err)
-	}
-	if generatorValue.Type() != lua.LTTable {
-		return nil, fmt.Errorf("expected a table of values but got %s", generatorValue.Type().String())
-	}
-
-	return generatorValue.(*lua.LTable), nil
 }
