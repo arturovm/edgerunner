@@ -10,7 +10,7 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-func runWith(generatorPath, taskPath string) error {
+func runWith(generatorPath, taskPath string, numWorkers int) error {
 	generatorModuleProto, err := compile(generatorPath)
 	if err != nil {
 		return fmt.Errorf("compile: %w", err)

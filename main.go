@@ -18,8 +18,8 @@ var (
 
 func main() {
 	parseFlags()
-	maybeEnableDebugLogs()
-	err := runWith(generatorPath, taskPath)
+	enableDebugLogs(debugEnabled)
+	err := runWith(generatorPath, taskPath, numWorkers)
 	if err != nil {
 		slog.Error("Runner failed", "error", err)
 		os.Exit(1)
@@ -36,8 +36,8 @@ func parseFlags() {
 	pflag.Parse()
 }
 
-func maybeEnableDebugLogs() {
-	if debugEnabled {
+func enableDebugLogs(enabled bool) {
+	if enabled {
 		slog.SetLogLoggerLevel(slog.LevelDebug)
 	}
 }
