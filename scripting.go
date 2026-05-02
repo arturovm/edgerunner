@@ -98,17 +98,18 @@ func runModuleValue(state *lua.LState, moduleProto *lua.FunctionProto, args ...l
 	}
 
 	state.Push(function)
-	for i := range len(args) {
+	for i := range args {
 		state.Push(args[i])
 	}
 	err = state.PCall(len(args), lua.MultRet, nil)
 	if err != nil {
 		return nil, fmt.Errorf("pcall: %w", err)
 	}
-	function = state.Get(-1)
+
+	result := state.Get(-1)
 	state.Pop(state.GetTop())
 
-	return function, nil
+	return result, nil
 }
 
 func evaluateModuleAndRetrieveValue(state *lua.LState, module *lua.LFunction) (lua.LValue, error) {
@@ -117,9 +118,9 @@ func evaluateModuleAndRetrieveValue(state *lua.LState, module *lua.LFunction) (l
 	if err != nil {
 		return nil, fmt.Errorf("pcall: %w", err)
 	}
-	function := state.Get(-1)
+	moduleValue := state.Get(-1)
 	state.Pop(state.GetTop())
-	return function, nil
+	return moduleValue, nil
 }
 
 func luaTableToSlice(table *lua.LTable) []lua.LValue {
