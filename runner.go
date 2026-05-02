@@ -62,10 +62,11 @@ func generator(generatorSlice *lua.LTable, outbox chan<- lua.LValue) {
 }
 
 func gatherGeneratorSlice(generator *lua.FunctionProto) (*lua.LTable, error) {
-	tmpState := lua.NewState()
-	defer tmpState.Close()
+	state := lua.NewState()
+	defer state.Close()
 
-	generatorValue, err := runModuleValue(tmpState, generator)
+	lualibs.Preload(state)
+	generatorValue, err := runModuleValue(state, generator)
 	if err != nil {
 		return nil, fmt.Errorf("run: %w", err)
 	}
