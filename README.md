@@ -14,7 +14,7 @@ challenges on _picoCTF_, so I decided to abstract the pattern, and I wrote this.
 If your Go environment is setup properly, you can run:
 
 ```sh
-$ go install git.sr.ht/~arturovm/edgerunner
+$ go install git.sr.ht/~arturovm/edgerunner@latest
 ```
 
 No pre-compiled binaries are available as of now.
