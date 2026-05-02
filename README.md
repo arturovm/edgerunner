@@ -63,7 +63,8 @@ under `examples`, but they are reproduced here for your benefit:
 (local crypto (require :crypto))
 
 (fn task [val]
-  (print (crypto.md5 val)))
+  (-> (crypto.md5 val)
+      (print)))
 ```
 
 The most important thing to remember here is that the `generator` and `task`
