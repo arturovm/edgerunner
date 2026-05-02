@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"sync"
+	"time"
 
 	lualibs "github.com/vadv/gopher-lua-libs"
 	lua "github.com/yuin/gopher-lua"
@@ -56,9 +57,17 @@ func worker(inbox <-chan lua.LValue, taskModuleProto *lua.FunctionProto) {
 
 func generator(generatorSlice *lua.LTable, outbox chan<- lua.LValue) {
 	generatorSlice.ForEach(func(key, val lua.LValue) {
+		maybeSleep(sleepValue)
 		outbox <- val
 	})
 	close(outbox)
+}
+
+func maybeSleep(sleep int) {
+	if sleep == 0 {
+		return
+	}
+	time.Sleep(time.Duration(sleep) * time.Second)
 }
 
 func gatherGeneratorSlice(generator *lua.FunctionProto) (*lua.LTable, error) {

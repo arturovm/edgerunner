@@ -12,7 +12,8 @@ var (
 	numWorkers    int
 	generatorPath string
 	taskPath      string
-	debug         bool
+	sleepValue    int
+	debugEnabled  bool
 )
 
 func main() {
@@ -29,13 +30,14 @@ func parseFlags() {
 	pflag.IntVarP(&numWorkers, "workers", "w", runtime.NumCPU(), "number of task runners")
 	pflag.StringVarP(&generatorPath, "generator", "g", "generator.fnl", "path of generator spec file")
 	pflag.StringVarP(&taskPath, "task", "t", "task.fnl", "path of task spec file")
-	pflag.BoolVarP(&debug, "debug", "d", false, "enable debug logs")
+	pflag.IntVarP(&sleepValue, "sleep", "s", 0, "sleep interval in seconds before each task is dispatched")
+	pflag.BoolVarP(&debugEnabled, "debug", "d", false, "enable debug logs")
 
 	pflag.Parse()
 }
 
 func maybeEnableDebugLogs() {
-	if debug {
+	if debugEnabled {
 		slog.SetLogLoggerLevel(slog.LevelDebug)
 	}
 }
