@@ -34,7 +34,9 @@ _task_:
 
 ```
 Usage of edgerunner:
+  -d, --debug              enable debug logs
   -g, --generator string   path of generator spec file (default "generator.fnl")
+  -s, --sleep int          sleep interval in seconds before each task is dispatched
   -t, --task string        path of task spec file (default "task.fnl")
   -w, --workers int        number of task runners
 ```
@@ -42,6 +44,13 @@ Usage of edgerunner:
 `edgerunner` defaults to spawning a number of workers equal to the number of
 CPUs on your system, but you can of course modify this behavior with the
 flag provided for this purpose.
+
+The `sleep` flag controls how fast tasks are dispatched but, if you use this,
+depending on task complexity, it might completely defeat the purpose of having
+concurrent workers.
+
+The `debug` flag, predictably, enables the debug logs, of which there are
+currently none :P
 
 #### Writing a generator and task spec
 
