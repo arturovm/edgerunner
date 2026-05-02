@@ -21,21 +21,21 @@ func runWith(generatorPath, taskPath string, numWorkers int) error {
 		return fmt.Errorf("compile: %w", err)
 	}
 
-	generatorSlice, err := gatherGeneratorSlice(generatorModuleProto)
+	generatorTable, err := getGeneratorTable(generatorModuleProto)
 	if err != nil {
-		return fmt.Errorf("gather generator slice: %w", err)
+		return fmt.Errorf("get generator table: %w", err)
 	}
 
 	var wg sync.WaitGroup
 	messaging := make(chan lua.LValue)
 	startWorkers(numWorkers, &wg, messaging, taskModuleProto)
-	generator(generatorSlice, messaging)
+	generate(generatorTable, messaging)
 	wg.Wait()
 
 	return err
 }
 
-func gatherGeneratorSlice(generator *lua.FunctionProto) (*lua.LTable, error) {
+func getGeneratorTable(generator *lua.FunctionProto) (*lua.LTable, error) {
 	state := lua.NewState()
 	defer state.Close()
 
@@ -54,12 +54,12 @@ func gatherGeneratorSlice(generator *lua.FunctionProto) (*lua.LTable, error) {
 func startWorkers(numWorkers int, wg *sync.WaitGroup, inbox <-chan lua.LValue, taskModuleProto *lua.FunctionProto) {
 	for range numWorkers {
 		wg.Go(func() {
-			worker(inbox, taskModuleProto)
+			work(inbox, taskModuleProto)
 		})
 	}
 }
 
-func worker(inbox <-chan lua.LValue, taskModuleProto *lua.FunctionProto) {
+func work(inbox <-chan lua.LValue, taskModuleProto *lua.FunctionProto) {
 	state := lua.NewState()
 	lualibs.Preload(state)
 	for val := range inbox {
@@ -71,7 +71,7 @@ func worker(inbox <-chan lua.LValue, taskModuleProto *lua.FunctionProto) {
 	state.Close()
 }
 
-func generator(generatorSlice *lua.LTable, outbox chan<- lua.LValue) {
+func generate(generatorSlice *lua.LTable, outbox chan<- lua.LValue) {
 	generatorSlice.ForEach(func(key, val lua.LValue) {
 		maybeSleep(sleepValue)
 		outbox <- val
