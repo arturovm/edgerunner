@@ -92,25 +92,34 @@ func compileLua(sourceReader *bufio.Reader, filePath string) (*lua.FunctionProto
 
 func runFirstModuleFunction(state *lua.LState, moduleProto *lua.FunctionProto, args ...lua.LValue) (lua.LValue, error) {
 	module := state.NewFunctionFromProto(moduleProto)
-	function := evaluateModuleAndRetrieveValue(state, module)
+	function, err := evaluateModuleAndRetrieveValue(state, module)
+	if err != nil {
+		return nil, fmt.Errorf("evaluate module and retrieve value: %w", err)
+	}
 
 	state.Push(function)
 	for i := range len(args) {
 		state.Push(args[i])
 	}
-	state.PCall(len(args), lua.MultRet, nil)
+	err = state.PCall(len(args), lua.MultRet, nil)
+	if err != nil {
+		return nil, fmt.Errorf("pcall: %w", err)
+	}
 	function = state.Get(-1)
 	state.Pop(state.GetTop())
 
 	return function, nil
 }
 
-func evaluateModuleAndRetrieveValue(state *lua.LState, module *lua.LFunction) lua.LValue {
+func evaluateModuleAndRetrieveValue(state *lua.LState, module *lua.LFunction) (lua.LValue, error) {
 	state.Push(module)
-	state.PCall(0, lua.MultRet, nil)
+	err := state.PCall(0, lua.MultRet, nil)
+	if err != nil {
+		return nil, fmt.Errorf("pcall: %w", err)
+	}
 	function := state.Get(-1)
 	state.Pop(state.GetTop())
-	return function
+	return function, nil
 }
 
 func luaTableToSlice(table *lua.LTable) []lua.LValue {

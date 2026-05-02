@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"sync"
 
 	lualibs "github.com/vadv/gopher-lua-libs"
@@ -45,7 +46,10 @@ func worker(inbox <-chan lua.LValue, taskModuleProto *lua.FunctionProto) {
 	state := lua.NewState()
 	lualibs.Preload(state)
 	for val := range inbox {
-		runFirstModuleFunction(state, taskModuleProto, val)
+		_, err := runFirstModuleFunction(state, taskModuleProto, val)
+		if err != nil {
+			slog.Error("Task failed", "error", err)
+		}
 	}
 	state.Close()
 }
