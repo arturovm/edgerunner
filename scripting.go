@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	_ "embed"
 	"errors"
 	"fmt"
 	"strings"
@@ -9,6 +10,9 @@ import (
 	lua "github.com/yuin/gopher-lua"
 	parse "github.com/yuin/gopher-lua/parse"
 )
+
+//go:embed embed/fennel.lua
+var fennelSource string
 
 const fennelTemplate = `
 local file, err = io.open("%s", "r")
@@ -38,7 +42,17 @@ func compileFennel(filePath string) (string, error) {
 	state := lua.NewState()
 	defer state.Close()
 
-	err := state.DoString(fmt.Sprintf(fennelTemplate, filePath))
+	err := state.DoString(fennelSource)
+	if err != nil {
+		return "", fmt.Errorf("load fennel: %w", err)
+	}
+	fennelModule := state.Get(-1)
+	state.Pop(1)
+	pkg := state.GetGlobal("package")
+	loaded := state.GetField(pkg, "loaded")
+	state.SetField(loaded, "fennel", fennelModule)
+
+	err = state.DoString(fmt.Sprintf(fennelTemplate, filePath))
 	if err != nil {
 		return "", fmt.Errorf("do string: %w", err)
 	}
