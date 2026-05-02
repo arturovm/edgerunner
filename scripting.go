@@ -90,7 +90,7 @@ func compileLua(sourceReader *bufio.Reader, filePath string) (*lua.FunctionProto
 	return proto, nil
 }
 
-func runFirstModuleFunction(state *lua.LState, moduleProto *lua.FunctionProto, args ...lua.LValue) (lua.LValue, error) {
+func runModuleValue(state *lua.LState, moduleProto *lua.FunctionProto, args ...lua.LValue) (lua.LValue, error) {
 	module := state.NewFunctionFromProto(moduleProto)
 	function, err := evaluateModuleAndRetrieveValue(state, module)
 	if err != nil {

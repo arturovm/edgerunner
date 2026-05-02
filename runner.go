@@ -46,7 +46,7 @@ func worker(inbox <-chan lua.LValue, taskModuleProto *lua.FunctionProto) {
 	state := lua.NewState()
 	lualibs.Preload(state)
 	for val := range inbox {
-		_, err := runFirstModuleFunction(state, taskModuleProto, val)
+		_, err := runModuleValue(state, taskModuleProto, val)
 		if err != nil {
 			slog.Error("Task failed", "error", err)
 		}
@@ -65,7 +65,7 @@ func gatherGeneratorSlice(generator *lua.FunctionProto) (*lua.LTable, error) {
 	tmpState := lua.NewState()
 	defer tmpState.Close()
 
-	generatorValue, err := runFirstModuleFunction(tmpState, generator)
+	generatorValue, err := runModuleValue(tmpState, generator)
 	if err != nil {
 		return nil, fmt.Errorf("run: %w", err)
 	}
