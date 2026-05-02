@@ -2,7 +2,7 @@
 
 app: bin/edgerunner
 
-bin/edgerunner: $(shell find . -path '**/*.go')
+bin/edgerunner: $(shell find . -name '*.go')
 	go build -o bin/edgerunner git.sr.ht/~arturovm/edgerunner
 
 clean:
